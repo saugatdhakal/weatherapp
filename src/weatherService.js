@@ -1,9 +1,9 @@
 const URL = "http://api.weatherapi.com/v1";
-const apikey = "9a8648182c7e4194a3b04405251302"; 
+const apiKey = import.meta.env.VITE_WEATHER_API_KEY;
 
 const fetchForecastWeather = async (city) => {
     try {
-        const response = await fetch(`${URL}/forecast.json?key=${apikey}&q=${city}`);
+        const response = await fetch(`${URL}/forecast.json?key=${apiKey}&q=${city}`);
         const data = await response.json();
     
         if (data.error) {
@@ -29,7 +29,7 @@ const fetchForecastWeather = async (city) => {
   
       const weatherData = await Promise.all(
         futureDates.map(async (date) => {
-          const response = await fetch(`${URL}/forecast.json?key=${apikey}&q=${city}&dt=${date}`);
+          const response = await fetch(`${URL}/forecast.json?key=${apiKey}&q=${city}&dt=${date}`);
           const data = await response.json();
           return data.error ? null : data; 
         })
