@@ -1,0 +1,6 @@
+@import "tailwindcss";
+
+.forcast::-webkit-scrollbar-thumb {
+    background: red; 
+    border-radius: 10px;
+  }
