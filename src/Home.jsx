@@ -12,10 +12,13 @@ function Home() {
   const [futureWeather, setFutureWeather] = useState([]);
 
   const getWeatherData = async () => {
+    console.log("getWeatherData called for city:", city);
     const weatherData = await fetchForecastWeather(city);
     setTodayWeathers(weatherData);
   };
+
   const getFutureWeather = async () => {
+    console.log("getFutureWeather called for city:", city);
     const data = await fetchFutureWeekWeather(city);
     setFutureWeather(data);
   };
@@ -42,24 +45,21 @@ function Home() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+  };
+
+  // Watch for city changes and update weather data
+  useEffect(() => {
     if (city.trim()) {
+      console.log("City changed to:", city);
       getWeatherData();
       getFutureWeather();
     }
-  };
-  useEffect(() => {
-    getWeatherData();
-    getFutureWeather();
-  }, []);
+  }, [city]); // This will run whenever city changes
 
   return (
     <>
       <div className="h-screen w-screen bg-amber-600 flex flex-col  ">
-        <CityFormContainer
-          city={city}
-          setCity={setCity}
-          handleSubmit={handleSubmit}
-        />
+        <CityFormContainer setCity={setCity} handleSubmit={handleSubmit} />
 
         <div className="text-white m-3">
           {todayWeather ? (

@@ -1,15 +1,14 @@
-import { faSearch } from "@fortawesome/free-solid-svg-icons";
+import { faSearch, faLocationDot } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useState } from "react";
 
-function CityFormContainer({ city, setCity, handleSubmit }) {
+function CityFormContainer({ setCity, handleSubmit }) {
   const [activeSearch, setActiveSearch] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
 
   const handleSearch = async (e) => {
     const value = e.target.value;
     setSearchTerm(value);
-    setCity(value); 
 
     if (value === "") {
       setActiveSearch([]);
@@ -22,11 +21,52 @@ function CityFormContainer({ city, setCity, handleSubmit }) {
           import.meta.env.VITE_WEATHER_API_KEY
         }&q=${value}`
       );
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const contentType = response.headers.get("content-type");
+      if (!contentType || !contentType.includes("application/json")) {
+        throw new Error("Invalid response format!");
+      }
+
       const data = await response.json();
-      setActiveSearch(data.slice(0, 8));
+      if (Array.isArray(data)) {
+        setActiveSearch(data.slice(0, 8));
+      } else {
+        setActiveSearch([]);
+      }
     } catch (error) {
       console.error("Error searching cities:", error);
       setActiveSearch([]);
+    }
+  };
+
+  const getGpsLocation = async () => {
+    try {
+      const response = await fetch("https://ipapi.co/json/");
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      
+      const contentType = response.headers.get("content-type");
+      if (!contentType || !contentType.includes("application/json")) {
+        throw new Error("Invalid response format!");
+      }
+
+      const data = await response.json();
+      if (data && data.city) {
+        setCity(data.city);
+        setSearchTerm(data.city);
+        setActiveSearch([]);
+      } else {
+        throw new Error("No city found in response");
+      }
+    } catch (error) {
+      console.error("Error getting location:", error);
+      alert("Unable to get your location. Please enter city manually.");
     }
   };
 
@@ -34,17 +74,18 @@ function CityFormContainer({ city, setCity, handleSubmit }) {
     setCity(suggestion.name);
     setSearchTerm(suggestion.name);
     setActiveSearch([]);
-    handleSubmit(new Event("submit"));
   };
 
   const onSubmit = (e) => {
     e.preventDefault();
-    setActiveSearch([]); 
-    handleSubmit(e);
+    if (searchTerm.trim()) {
+      setCity(searchTerm.trim());
+      setActiveSearch([]);
+    }
   };
 
   return (
-    <div className="items-center flex justify-center">
+    <div className="items-center flex justify-center gap-4">
       <form className="relative w-[500px]" onSubmit={onSubmit}>
         <div className="flex justify-center mt-4 gap-3 relative">
           <input
@@ -75,6 +116,14 @@ function CityFormContainer({ city, setCity, handleSubmit }) {
           </div>
         )}
       </form>
+
+      <button
+        onClick={getGpsLocation}
+        className="mt-4 text-xl cursor-pointer text-white hover:text-gray-200"
+        title="Get location using IP"
+      >
+        <FontAwesomeIcon icon={faLocationDot} />
+      </button>
     </div>
   );
 }
