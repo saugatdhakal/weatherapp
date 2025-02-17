@@ -1,25 +1,82 @@
-function CityFormContainer({ city, setCity,handleSubmit }) {
+import { faSearch } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { useState } from "react";
+
+function CityFormContainer({ city, setCity, handleSubmit }) {
+  const [activeSearch, setActiveSearch] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const handleSearch = async (e) => {
+    const value = e.target.value;
+    setSearchTerm(value);
+    setCity(value); 
+
+    if (value === "") {
+      setActiveSearch([]);
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        `https://api.weatherapi.com/v1/search.json?key=${
+          import.meta.env.VITE_WEATHER_API_KEY
+        }&q=${value}`
+      );
+      const data = await response.json();
+      setActiveSearch(data.slice(0, 8));
+    } catch (error) {
+      console.error("Error searching cities:", error);
+      setActiveSearch([]);
+    }
+  };
+
+  const handleClick = (suggestion) => {
+    setCity(suggestion.name);
+    setSearchTerm(suggestion.name);
+    setActiveSearch([]);
+    handleSubmit(new Event("submit"));
+  };
+
+  const onSubmit = (e) => {
+    e.preventDefault();
+    setActiveSearch([]); 
+    handleSubmit(e);
+  };
+
   return (
-    <div>
-      <form onSubmit={handleSubmit}>
-        <div className="flex justify-center mt-4 gap-3">
+    <div className="items-center flex justify-center">
+      <form className="relative w-[500px]" onSubmit={onSubmit}>
+        <div className="flex justify-center mt-4 gap-3 relative">
           <input
-            onChange={(e) => setCity(e.target.value)}
+            onChange={handleSearch}
+            value={searchTerm}
             type="text"
-            value={city}
-            className="bg-white rounded-lg"
+            className="bg-white rounded-full w-full p-3"
             placeholder="Enter city name"
           />
           <button
             type="submit"
-            className="bg-white text-orange-500 hover:bg-transparent hover:border-1 hover:text-white
-             cursor-pointer p-1 rounded-lg  font-bold"
+            className="p-2 text-black right-3 top-1 absolute cursor-pointer"
           >
-            Search
+            <FontAwesomeIcon icon={faSearch} />
           </button>
         </div>
+        {activeSearch.length > 0 && (
+          <div className="top-17 rounded-lg w-full absolute bg-white flex flex-col gap-2 p-4 mt-1 shadow-lg z-10">
+            {activeSearch.map((suggestion) => (
+              <span
+                onClick={() => handleClick(suggestion)}
+                className="cursor-pointer hover:bg-gray-200 p-2 rounded-md"
+                key={suggestion.id}
+              >
+                {suggestion.name}, {suggestion.country}
+              </span>
+            ))}
+          </div>
+        )}
       </form>
     </div>
   );
 }
+
 export default CityFormContainer;

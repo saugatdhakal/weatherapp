@@ -1,5 +1,5 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCompass, faPenNib } from "@fortawesome/free-solid-svg-icons";
+import { faCompass } from "@fortawesome/free-solid-svg-icons";
 import { faTemperatureThreeQuarters } from "@fortawesome/free-solid-svg-icons";
 import WeatherCast from "./WeatherCast";
 import { useState, useEffect } from "react";
@@ -7,7 +7,7 @@ import CityFormContainer from "./CityFormContainer";
 import { fetchForecastWeather, fetchFutureWeekWeather } from "./weatherService";
 
 function Home() {
-  const [city, setCity] = useState("Itahari");
+  const [city, setCity] = useState("itahari");
   const [todayWeather, setTodayWeathers] = useState(null);
   const [futureWeather, setFutureWeather] = useState([]);
 
@@ -40,11 +40,13 @@ function Home() {
     );
   };
 
-  function handleSubmit(e) {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    getWeatherData();
-    getFutureWeather();
-  }
+    if (city.trim()) {
+      getWeatherData();
+      getFutureWeather();
+    }
+  };
   useEffect(() => {
     getWeatherData();
     getFutureWeather();
@@ -52,7 +54,7 @@ function Home() {
 
   return (
     <>
-      <div className="h-screen w-screen bg-amber-600 flex flex-col">
+      <div className="h-screen w-screen bg-amber-600 flex flex-col  ">
         <CityFormContainer
           city={city}
           setCity={setCity}
