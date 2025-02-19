@@ -12,13 +12,11 @@ function Home() {
   const [futureWeather, setFutureWeather] = useState([]);
 
   const getWeatherData = async () => {
-    console.log("getWeatherData called for city:", city);
     const weatherData = await fetchForecastWeather(city);
     setTodayWeathers(weatherData);
   };
 
   const getFutureWeather = async () => {
-    console.log("getFutureWeather called for city:", city);
     const data = await fetchFutureWeekWeather(city);
     setFutureWeather(data);
   };
@@ -50,7 +48,6 @@ function Home() {
   // Watch for city changes and update weather data
   useEffect(() => {
     if (city.trim()) {
-      console.log("City changed to:", city);
       getWeatherData();
       getFutureWeather();
     }
